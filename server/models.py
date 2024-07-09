@@ -47,6 +47,24 @@ class Destination(db.Model, SerializerMixin):
   reviews = db.relationship('Review', back_populates = 'destination')
   users = db.association_proxy('reviews', 'user')
   
+  @validates('name')
+  def validate_name(self, key, name):
+    if len(name) < 5:
+      raise ValueError('Name must be at least 5 characters long')
+    return name
+  
+  @validates('location')
+  def validate_location(self, key, location):
+    if len(location) < 5:
+      raise ValueError('Location must be at least 5 characters long')
+    return location
+  
+  @validates('image')
+  def validate_image(self, key, image):
+    if not re.match(r"^https?://.+", image):
+      raise ValueError('Invalid image URL')
+    return image
+  
 class Review(db.Model, SerializerMixin):
   __tablename__ = 'reviews'
   
@@ -55,6 +73,18 @@ class Review(db.Model, SerializerMixin):
   destination_id = db.Column(db.Integer, db.ForeignKey('destinations.id'), nullable=False)
   rating = db.Column(db.Integer, nullable=False)
   comment = db.Column(db.String(), nullable=False)
+  
+  @validates('comment')
+  def validate_comment(self, key, comment):
+    if len(comment) < 5:
+      raise ValueError('Comment must be at least 5 characters long')
+    return comment
+  
+  @validates(rating)
+  def validate_rating(self, key, rating):
+    if 5 < rating < 0:
+      raise ValueError('Rating must be between 1 and 5')
+    return rating
   
   user = db.relationship('User', back_populates = 'reviews')
   destination = db.relationship('Travel_Guide', back_populates = 'reviews')
