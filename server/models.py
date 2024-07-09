@@ -1,5 +1,7 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import validates
+import re
 
 from config import db
 
@@ -14,6 +16,25 @@ class User(db.Model, SerializerMixin):
   
   reviews = db.relationship('Review', back_populates = 'user')
   travel_guides =db.association_proxy('reviews', 'travel_guide')
+  
+  @validates('email')
+  def validate_email(self, key, email):
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+      raise ValueError('Invalid email address')
+    return email
+  
+  @validates('password')
+  def validate_password(self, key, password):
+    if len(password) < 8:
+      raise ValueError('Password must be at least 8 characters long')
+    return password
+  
+  @validates('username')
+  def validate_username(self, key, username):
+    username = User.query.filter_by(username=username).first()
+    if username:
+      raise ValueError('Username already exists')
+    return username
   
 class Destination(db.Model, SerializerMixin):
   __tablename__ = 'destinations'
