@@ -13,6 +13,7 @@ from models import db, User
 fake = Faker()
 
 def make_users():
+    print("Seeding users...") 
     User.query.delete()
     
     users = []
@@ -29,13 +30,10 @@ def make_users():
     password = [fake.password(length=8) for _ in range(20)]
     
     for i, username in enumerate(unique_usernames):
-        print(f"Creating user {i + 1}: {username}, {email[i]}, {password[i]}") 
         user = User(username=username, email=email[i], password=password[i])
-        print(user.username)
         users.append(user)
-        print(user.username)
     
-    print("Seeding users...")    
+   
     db.session.add_all(users)
     db.session.commit()
 
