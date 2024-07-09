@@ -15,7 +15,7 @@ class User(db.Model, SerializerMixin):
   password = db.Column(db.String(), nullable=False)
   
   reviews = db.relationship('Review', back_populates = 'user')
-  travel_guides =db.association_proxy('reviews', 'travel_guide')
+  destinations = association_proxy('reviews', 'destination' )
   
   @validates('email')
   def validate_email(self, key, email):
@@ -31,8 +31,8 @@ class User(db.Model, SerializerMixin):
   
   @validates('username')
   def validate_username(self, key, username):
-    username = User.query.filter_by(username=username).first()
-    if username:
+    user = User.query.filter_by(username=username).first()
+    if user:
       raise ValueError('Username already exists')
     return username
   
@@ -45,7 +45,6 @@ class Destination(db.Model, SerializerMixin):
   image = db.Column(db.String(), nullable=False)
   
   reviews = db.relationship('Review', back_populates = 'destination')
-  users = db.association_proxy('reviews', 'user')
   
   @validates('name')
   def validate_name(self, key, name):
@@ -74,6 +73,9 @@ class Review(db.Model, SerializerMixin):
   rating = db.Column(db.Integer, nullable=False)
   comment = db.Column(db.String(), nullable=False)
   
+  user = db.relationship('User', back_populates='reviews')
+  destination = db.relationship('Destination', back_populates='reviews')
+  
   @validates('comment')
   def validate_comment(self, key, comment):
     if len(comment) < 5:
@@ -85,6 +87,3 @@ class Review(db.Model, SerializerMixin):
     if 5 < rating < 0:
       raise ValueError('Rating must be between 1 and 5')
     return rating
-  
-  user = db.relationship('User', back_populates = 'reviews')
-  destination = db.relationship('Travel_Guide', back_populates = 'reviews')

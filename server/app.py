@@ -10,7 +10,7 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api
 # Add your model imports
-from models import *
+from models import db, User, Destination, Review
 
 
 # Views go here!
@@ -52,7 +52,7 @@ class Users(Resource):
             return make_response({'error': 'User not found'}, 404)
         
         
-app.add_resource(Users, '/users')
+api.add_resource(Users, '/users')
 
 
 if __name__ == '__main__':
